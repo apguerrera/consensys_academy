@@ -1,6 +1,8 @@
 
 ## HouseMates Contract
 
+Smart Contract to generate a House and represent housemates in a sharehouse on the blockchain. Each house mate has a number of brownie points that can be accumulated, traded or given between the house mates to ensure the chores are always done fairly.
+
 
 ## Installation
 
