@@ -1,0 +1,130 @@
+[
+  {
+    "id": 0,
+    "name": "Friedas House",
+    "picture": "images/house.jpg",
+    "rooms": 3,
+    "breed": "Scottish Terrier",
+    "location": "Lisco, Alabama"
+  },
+  {
+    "id": 1,
+    "name": "Ginas House",
+    "picture": "images/house.jpg",
+    "rooms": 3,
+    "breed": "Scottish Terrier",
+    "location": "Tooleville, West Virginia"
+  },
+  {
+    "id": 2,
+    "name": "Collinss House",
+    "picture": "images/loft.jpg",
+    "rooms": 2,
+    "breed": "French Bulldog",
+    "location": "Freeburn, Idaho"
+  },
+  {
+    "id": 3,
+    "name": "Melissas House",
+    "picture": "images/townhouse.jpg",
+    "rooms": 2,
+    "breed": "Boxer",
+    "location": "Camas, Pennsylvania"
+  },
+  {
+    "id": 4,
+    "name": "Jeanines House",
+    "picture": "images/loft.jpg",
+    "rooms": 2,
+    "breed": "French Bulldog",
+    "location": "Gerber, South Dakota"
+  },
+  {
+    "id": 5,
+    "name": "Elvias House",
+    "picture": "images/loft.jpg",
+    "rooms": 3,
+    "breed": "French Bulldog",
+    "location": "Innsbrook, Illinois"
+  },
+  {
+    "id": 6,
+    "name": "Latishas House",
+    "picture": "images/apartment.jpg",
+    "rooms": 3,
+    "breed": "Golden Retriever",
+    "location": "Soudan, Louisiana"
+  },
+  {
+    "id": 7,
+    "name": "Colemans House",
+    "picture": "images/apartment.jpg",
+    "rooms": 3,
+    "breed": "Golden Retriever",
+    "location": "Jacksonwald, Palau"
+  },
+  {
+    "id": 8,
+    "name": "Nicholes House",
+    "picture": "images/loft.jpg",
+    "rooms": 2,
+    "breed": "French Bulldog",
+    "location": "Honolulu, Hawaii"
+  },
+  {
+    "id": 9,
+    "name": "Frans House",
+    "picture": "images/townhouse.jpg",
+    "rooms": 3,
+    "breed": "Boxer",
+    "location": "Matheny, Utah"
+  },
+  {
+    "id": 10,
+    "name": "Leonors House",
+    "picture": "images/townhouse.jpg",
+    "rooms": 2,
+    "breed": "Boxer",
+    "location": "Tyhee, Indiana"
+  },
+  {
+    "id": 11,
+    "name": "Deans House",
+    "picture": "images/house.jpg",
+    "rooms": 3,
+    "breed": "Scottish Terrier",
+    "location": "Windsor, Montana"
+  },
+  {
+    "id": 12,
+    "name": "Stevensons House",
+    "picture": "images/loft.jpg",
+    "rooms": 3,
+    "breed": "French Bulldogs House",
+    "location": "Kingstowne, Nevada"
+  },
+  {
+    "id": 13,
+    "name": "Kristinas House",
+    "picture": "images/apartment.jpg",
+    "rooms": 4,
+    "breed": "Golden Retriever",
+    "location": "Sultana, Massachusetts"
+  },
+  {
+    "id": 14,
+    "name": "Ethels House",
+    "picture": "images/apartment.jpg",
+    "rooms": 2,
+    "breed": "Golden Retriever",
+    "location": "Broadlands, Oregon"
+  },
+  {
+    "id": 15,
+    "name": "Terry",
+    "picture": "images/apartment.jpg",
+    "rooms": 2,
+    "breed": "Golden Retriever",
+    "location": "Dawn, Wisconsin"
+  }
+]

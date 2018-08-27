@@ -14,6 +14,23 @@ pragma solidity ^0.4.23;
 // GitHub: https://github.com/bokkypoobah/ClubEth
 
 // ----------------------------------------------------------------------------
+// House Points Interface
+// ----------------------------------------------------------------------------
+
+contract HousePointsInterface {
+    // function name() public view returns (string);
+    function totalSupply() public view returns (uint);
+    function balanceOf(address tokenOwner) public view returns (uint balance);
+    function transfer(address to, uint numPoints) public returns (bool success) ;
+    function mint (address to, uint numPoints) public returns (bool success) ;
+    function burn (address from, uint numPoints) public returns (bool success);
+    event TransferPoints(address indexed fromAddress,address indexed toAddress, uint numPoints);
+    event MintPoints(address indexed toAddress, uint numPoints);
+    event BurnPoints(address indexed fromAddress, uint numPoints);
+
+}
+
+// ----------------------------------------------------------------------------
 // Owned contract
 // ----------------------------------------------------------------------------
 contract Owned {
@@ -45,6 +62,27 @@ contract Owned {
     }
 }
 
+// ----------------------------------------------------------------------------
+// Safe maths
+// ----------------------------------------------------------------------------
+library SafeMath {
+    function add(uint a, uint b) internal pure returns (uint c) {
+        c = a + b;
+        require(c >= a);
+    }
+    function sub(uint a, uint b) internal pure returns (uint c) {
+        require(b <= a);
+        c = a - b;
+    }
+    function mul(uint a, uint b) internal pure returns (uint c) {
+        c = a * b;
+        require(a == 0 || c / a == b);
+    }
+    function div(uint a, uint b) internal pure returns (uint c) {
+        require(b > 0);
+        c = a / b;
+    }
+}
 
 // ----------------------------------------------------------------------------
 // Housemate Library
@@ -56,12 +94,17 @@ library Housemates {
       bool exists;
     }
     struct Data {
+        bool initialised;
         mapping(address => Housemate) housemates;
     }
     event HousemateAdded(address indexed housemateAddress, string name);
     event HousemateRemoved(address indexed housemateAddress, string name);
     event HousemateNameChanged(address indexed housemateAddress, string name);
 
+    function init(Data storage self) internal {
+        require(!self.initialised);
+        self.initialised = true;
+    }
     function isHousemate(Data storage self, address account) internal view returns (bool) {
         // check if housemate exists
         return self.housemates[account].exists;
@@ -86,69 +129,133 @@ library Housemates {
 }
 
 // ----------------------------------------------------------------------------
+// House Points
+// ----------------------------------------------------------------------------
+
+contract HousePoints is HousePointsInterface, Owned {
+    using SafeMath for uint;
+    mapping (address => uint) points;
+    uint _totalSupply;
+
+    event TransferPoints(address indexed fromAddress,address indexed toAddress, uint numPoints);
+    event MintPoints(address indexed toAddress, uint numPoints);
+    event BurnPoints(address indexed fromAddress, uint numPoints);
+
+    constructor () public {
+        _totalSupply = 0;
+    }
+
+    function totalSupply() public view returns (uint) {
+       return _totalSupply - points[address(0)];
+    }
+    function balanceOf(address tokenOwner) public view returns (uint balance) {
+        return points[tokenOwner];
+    }
+    function transfer(address to, uint numPoints) public returns (bool success) {
+        // check enough Points
+        require(points[msg.sender] >= numPoints);
+        points[msg.sender] = points[msg.sender].sub(numPoints);
+        points[to] = points[to].add(numPoints);
+        emit TransferPoints(msg.sender, to, numPoints);
+
+        return true;
+    }
+    function mint (address to, uint numPoints) public returns (bool success) {
+        _totalSupply = _totalSupply.add(numPoints);
+        points[to] = points[to].add(numPoints);
+        return true;
+
+    }
+    function burn (address from, uint numPoints) public returns (bool success){
+        require(points[from] >= numPoints);
+        _totalSupply = _totalSupply.sub(numPoints);
+        points[from] = points[from].sub(numPoints);
+        return true;
+    }
+    function () public payable {
+        revert();
+    }
+}
+
+// ----------------------------------------------------------------------------
 // House Contract
 // ----------------------------------------------------------------------------
 
-contract House{
+contract House {
+    using SafeMath for uint;
     using Housemates for Housemates.Data;
-    Housemates.Data housemates;
-    uint8 public no_rooms;
-    string public house_name;
-    bool public testing;
+    Housemates.Data housemateData;
+    HousePointsInterface public housePoints;
+
+    uint public numberOfRooms;
+    string public houseName;
+    bool public active;
+    uint public numNewTokens;
 
     modifier onlyHousemate {
-      require(housemates.isHousemate(msg.sender));
+      require(housemateData.isHousemate(msg.sender));
       _;
     }
 
-    constructor (string houseName, uint8 houseRooms) public {
-      no_rooms = houseRooms;
-      house_name = houseName;
-      housemates.addHousemate(msg.sender, "Owner");
-      testing = false;
+    constructor (string _houseName, address _housePointsAddress, uint _houseRooms) public {
+      numberOfRooms = _houseRooms;
+      houseName = _houseName;
+      active = true;
+      // housemateData.addHousemate(msg.sender, housemateName);
+      housePoints = HousePointsInterface(_housePointsAddress);
     }
 
-    function test() public onlyHousemate {
-      testing = true;
+    function activateHouse() public onlyHousemate {
+      active = true;
+    }
+    function killHouse() public onlyHousemate {
+      active = false;
     }
 
     function addHousemate(address newAddress, string name) public onlyHousemate {
-      housemates.addHousemate(newAddress, name);
+        require(active);
+        housemateData.addHousemate(newAddress, name);
+        housePoints.mint(newAddress, numNewTokens);
     }
 
     function removeHousemate(address deadAddress) public onlyHousemate {
-      housemates.removeHousemate(deadAddress);
+        require(active);
+        housePoints.burn(deadAddress, uint(-1));
+        housemateData.removeHousemate(deadAddress);
     }
 
-    function getHousemates() public view onlyHousemate returns (string does_exist) {
-      does_exist = housemates.housemates[msg.sender].name;
+    function isHousemates() public view onlyHousemate returns (string does_exist) {
+      does_exist = housemateData.housemates[msg.sender].name;
     }
 
 }
-
 
 // ----------------------------------------------------------------------------
 // House Factory
 // ----------------------------------------------------------------------------
 contract HouseFactory is Owned {
     House[] public activeHouses;
+    HousePointsInterface[] public activePoints;
+    event NewHouse(address indexed createdAddress, string name, uint rooms);
 
-    event NewHouse(address indexed createdAddress, string name, uint8 rooms);
-
-    constructor () public {
-      createNewHouse("Stanley St", 5);
-    }
-
-    function createNewHouse (string houseName, uint8 houseRooms) public returns (House house) {
-        house = new House(houseName, houseRooms);
-        emit NewHouse(msg.sender, houseName,houseRooms);
+    function createNewHouse (string houseName, uint houseRooms, string housemateName, uint newHousePoints) public returns (House house,  HousePoints points ) {
+        points = new HousePoints();
+        activePoints.push(points);
+        house = new House(houseName, address(points), houseRooms);
+        house.addHousemate(msg.sender, housemateName);
+        points.mint(msg.sender, newHousePoints);
+        activeHouses.push(house);
+        emit NewHouse(msg.sender, houseName, houseRooms);
     }
 
     function numberOfActiveHouses() public view returns (uint) {
         return activeHouses.length;
     }
+    function numberOfActivePoints() public view returns (uint) {
+        return activePoints.length;
+    }
+
     function () public payable {
         revert();
     }
-
 }

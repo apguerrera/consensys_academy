@@ -1,5 +1,5 @@
-var House = artifacts.require("House");
+var HouseFactory = artifacts.require("HouseFactory");
 
 module.exports = function(deployer) {
-  deployer.deploy(House);
+  deployer.deploy(HouseFactory);
 };

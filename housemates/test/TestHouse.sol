@@ -5,13 +5,13 @@ import "truffle/DeployedAddresses.sol";
 import "../contracts/House.sol";
 
 contract TestAdoption {
-  House house = House(DeployedAddresses.House());
+  HouseFactory houseFactory = HouseFactory(DeployedAddresses.HouseFactory());
 
   // Testing the adopt() function
   function testHousemate() public {
-    uint returnedId = house.housemate(8);
+    address returnedId = houseFactory;
 
-    uint expected = 8;
+    address expected = 0x123;
 
     Assert.equal(returnedId, expected, "Adoption of housemate ID 8 should be recorded.");
   }
